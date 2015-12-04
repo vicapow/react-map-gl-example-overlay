@@ -11,7 +11,7 @@ var ExampleOverlay = require('react-map-gl-example-overlay');
 var cities = require('example-cities');
 ````
 
-Where each element in cities looks like: `{latitude, longitude}`.
+Where each element in `cities` looks like: `{latitude, longitude}`.
 
 ````js
     render: function render() {
