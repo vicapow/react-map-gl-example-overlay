@@ -1,20 +1,19 @@
 'use strict';
 
 var document = require('global/document');
+var Immutable = require('immutable');
 var window = require('global/window');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var r = require('r-dom');
 var MapGL = require('react-map-gl');
-var process = require('global/process');
-var ExampleOverlay = require('../example-overlay');
+var Overlay = require('../src/overlay.react');
+var Attribution = require('./attribution.react');
 var assign = require('object-assign');
-
+var rasterTileStyle = require('raster-tile-style');
+var tileSource = '//tile.stamen.com/toner/{z}/{x}/{y}.png';
+var mapStyle = rasterTileStyle([tileSource]);
 var locations = require('example-cities');
-
-// This will get converted to a string by envify
-/* eslint-disable no-process-env */
-var mapboxApiAccessToken = process.env.MapboxAccessToken;
-/* eslint-enable no-process-env */
 
 var App = React.createClass({
 
@@ -22,31 +21,45 @@ var App = React.createClass({
 
   getInitialState: function getInitialState() {
     return {
-      appWidth: window.innerWidth,
-      appHeight: window.innerHeight,
       viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight,
         latitude: 0,
         longitude: 0,
-        zoom: 0
+        mapStyle: Immutable.fromJS(mapStyle),
+        zoom: 1,
+        isDragging: false
       }
     };
   },
 
+  componentDidMount: function componentDidMount() {
+    window.addEventListener('resize', function onResize() {
+      this.setState({
+        viewport: assign({}, this.state.viewport, {
+          width: window.innerWidth,
+          height: window.innerHeight
+        })
+      });
+    }.bind(this));
+  },
+
   _onChangeViewport: function _onChangeViewport(viewport) {
-    this.setState({viewport: viewport});
+    this.setState({viewport: assign({}, this.state.viewport, viewport)});
   },
 
   render: function render() {
-    var props = assign({}, this.state.viewport, {
-      width: this.state.appWidth,
-      height: this.state.appHeight,
-      mapboxApiAccessToken: mapboxApiAccessToken,
-      onChangeViewport: this._onChangeViewport
-    });
-    return r(MapGL, props, [
-      r(ExampleOverlay, {locations: locations})
+    return r.div([
+      r(MapGL, assign({}, this.state.viewport, {
+        onChangeViewport: this._onChangeViewport
+      }), [
+        r(Overlay, assign({}, this.state.viewport, {locations: locations}))
+      ]),
+      r(Attribution)
     ]);
   }
 });
 document.body.style.margin = 0;
-React.render(r(App), document.body);
+var reactContainer = document.createElement('div');
+document.body.appendChild(reactContainer);
+ReactDOM.render(r(App), reactContainer);

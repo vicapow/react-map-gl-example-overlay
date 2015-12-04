@@ -11,20 +11,26 @@ module.exports = React.createClass({
   displayName: 'ExampleOverlay',
 
   propTypes: {
-    locations: React.PropTypes.array.isRequired
+    locations: React.PropTypes.array.isRequired,
+    width: React.PropTypes.number.isRequired,
+    height: React.PropTypes.number.isRequired,
+    longitude: React.PropTypes.number.isRequired,
+    latitude: React.PropTypes.number.isRequired,
+    zoom: React.PropTypes.number.isRequired,
+    isDragging: React.PropTypes.bool.isRequired
   },
 
   render: function render() {
     return r(SVGOverlay, assign({}, this.props, {
       redraw: function redraw(opt) {
         return r.g(this.props.locations.map(function map(location) {
-          var pixel = opt.project([location.latitude, location.longitude]);
+          var pixel = opt.project([location.longitude, location.latitude]);
           return r.circle({
-            cx: pixel.x,
-            cy: pixel.y,
+            cx: pixel[0],
+            cy: pixel[1],
             r: 10,
             style: {
-              fill: 'rgba(0, 0, 0, 0.5)',
+              fill: 'rgba(231, 76, 60, 0.4)',
               pointerEvents: 'all',
               cursor: 'pointer'
             },

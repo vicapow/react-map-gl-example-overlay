@@ -20,3 +20,4 @@ Where each element in cities looks like: `{latitude, longitude}`.
       </MapGL>;
     }
 ````
+
